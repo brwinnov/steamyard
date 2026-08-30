@@ -4,3 +4,7 @@ dist/
 .dev.vars
 *.log
 .DS_Store
+
+# Personal planning/handoff notes — kept locally for reference, not needed by anyone
+# cloning the repo (README.md and skills/*/SKILL.md are the actual project docs).
+docs/
