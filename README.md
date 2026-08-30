@@ -7,8 +7,6 @@ STEAMYARD is an MCP (Model Context Protocol) server + companion skill that lets 
 - What's new for this game since I last checked?
 - Is now a good time to buy, or will it be cheaper in 4-6 weeks?
 
-Full background and roadmap: [`docs/STEAMYARD-plan.md`](docs/STEAMYARD-plan.md). Session handoff brief this scaffold was built from: [`docs/steamyard-nextsteps.md`](docs/steamyard-nextsteps.md).
-
 **Status: Phase 1 MVP scaffold.** Two tools, real Steam data, no reseller price comparison yet (that's Phase 2).
 
 ---
@@ -24,8 +22,7 @@ steamyard/
 │       └── index.ts         # MCP server entry point
 ├── skills/
 │   └── steamyard-skill/     # Standalone reasoning skill (works with or without the MCP)
-├── .claude/skills/          # Mirror of the skill, auto-loaded by Claude Code
-└── docs/                    # Original plan + handoff notes
+└── .claude/skills/          # Mirror of the skill, auto-loaded by Claude Code
 ```
 
 ## Tools
@@ -87,5 +84,3 @@ npm run deploy
 - Watchlist / price-drop alerts — Phase 3
 - Plugin wrapper for one-click install — Phase 4
 - Any scraping of SteamDB or AllKeyShop — public APIs only
-
-See [`docs/STEAMYARD-plan.md`](docs/STEAMYARD-plan.md) §8 for the full roadmap.
