@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+- KV-backed caching (`STEAMYARD_CACHE` namespace) for both tools: `get-owned-games` caches a
+  resolved SteamID's owned-games list for ~1h; `get-game-dlc` caches the base game + DLC catalog
+  per `app_id` for ~6h and reuses the owned-games cache when checking ownership. Verified locally:
+  a cache hit returned identical data ~4x faster than a cold call. See `AUDIT.md` §2.
+
+### Repo
+- Added `LICENSE` (MIT), `ROADMAP.md`, `AUDIT.md`, `SECURITY.md`, `CONTRIBUTING.md`
+
 ## [0.1.0] — Phase 1 MVP
 
 ### Added

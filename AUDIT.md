@@ -39,11 +39,13 @@ project plan ("rate limits on free tiers — need caching strategy from day one"
 (3s, 6s, 9s) before failing. `getAppDetailsBatch` also spaces sequential DLC lookups 1 second
 apart rather than 150ms.
 
-**Not yet fixed — flagged for Phase 2:** there's still no caching layer. The `wrangler.jsonc`
-scaffold has a commented-out KV namespace binding (`STEAMYARD_CACHE`) ready to use; a `get-game-dlc`
-response for a given `app_id` should be cached for a few hours to avoid re-triggering this limit
-on repeat lookups of the same game. Do this before Phase 2 adds two more external APIs
-(IsThereAnyDeal, CheapShark) on top of an already-tight budget.
+**Fixed:** a `STEAMYARD_CACHE` KV namespace is now bound in `wrangler.jsonc` and wired into both
+tools via `src/lib/cache.ts`. `get-game-dlc` caches the base game + DLC catalog (name, release
+date, price) per `app_id` for ~6h; `get-owned-games` caches a resolved SteamID's owned-games list
+for ~1h, and `get-game-dlc` reuses that same cache entry when checking ownership. Verified
+locally: a repeat `get-owned-games` call for the same profile returned identical data ~4x faster
+(0.25s vs. 1.07s) on the cache hit. This was worth doing before Phase 2 adds two more external
+APIs (IsThereAnyDeal, CheapShark) on top of an already-tight budget.
 
 ## 3. Private/hidden Steam profiles fail silently by default — handled explicitly
 

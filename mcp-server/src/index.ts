@@ -5,7 +5,7 @@ import { getGameDlcInputSchema, getGameDlcHandler } from "./tools/getGameDlc.js"
 
 export interface Env {
   STEAM_API_KEY: string;
-  // STEAMYARD_CACHE?: KVNamespace; // uncomment once bound in wrangler.jsonc
+  STEAMYARD_CACHE?: KVNamespace;
 }
 
 function createServer(env: Env): McpServer {
@@ -17,7 +17,7 @@ function createServer(env: Env): McpServer {
       description: "Look up a public Steam profile's owned games and playtime.",
       inputSchema: getOwnedGamesInputSchema,
     },
-    (input) => getOwnedGamesHandler(input, env.STEAM_API_KEY)
+    (input) => getOwnedGamesHandler(input, env.STEAM_API_KEY, env.STEAMYARD_CACHE)
   );
 
   server.registerTool(
@@ -27,7 +27,7 @@ function createServer(env: Env): McpServer {
         "List a Steam game's DLC with release date and current price, optionally flagging each as owned/unowned for a given Steam profile.",
       inputSchema: getGameDlcInputSchema,
     },
-    (input) => getGameDlcHandler(input, env.STEAM_API_KEY)
+    (input) => getGameDlcHandler(input, env.STEAM_API_KEY, env.STEAMYARD_CACHE)
   );
 
   return server;
