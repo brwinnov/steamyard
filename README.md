@@ -84,3 +84,9 @@ npm run deploy
 - Watchlist / price-drop alerts — Phase 3
 - Plugin wrapper for one-click install — Phase 4
 - Any scraping of SteamDB or AllKeyShop — public APIs only
+
+---
+
+## Contributors
+- [brwinnov](https://github.com/brwinnov) — project owner
+- [Claude Code](https://claude.com/claude-code) (Anthropic) — Phase 1 MVP scaffold, MCP server implementation, and dependency/reliability fixes
