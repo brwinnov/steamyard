@@ -5,6 +5,12 @@
   "compatibility_date": "2026-08-30",
   "compatibility_flags": ["nodejs_compat"],
 
+  // Custom domain (ackros.gg is on this Cloudflare account) instead of the shared,
+  // account-wide *.workers.dev subdomain.
+  "routes": [
+    { "pattern": "steamyard-mcp.ackros.gg", "custom_domain": true }
+  ],
+
   // Steam Web API key is a secret, never a var:
   //   npx wrangler secret put STEAM_API_KEY
   //
