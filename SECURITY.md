@@ -23,6 +23,15 @@ unnecessary crypto-wallet dependency chain pulled in transitively, since removed
 a new dependency to `mcp-server/package.json`, check its transitive tree
 (`npm ls <package>` after a trial install) for anything unexpected, and run `npm audit`.
 
+## Known Limitations
+
+- **No request authentication on the deployed `/mcp` endpoint.** Anyone with the URL can call
+  both tools, and each call spends the deployed instance's `STEAM_API_KEY` quota — there's
+  currently no way to rate-limit or authenticate individual callers. The URL is intentionally
+  kept out of public docs for now as a mitigation. Before sharing the URL more broadly (or
+  building the Phase 4 plugin wrapper), add either a shared-secret header check or Cloudflare
+  Access in front of the Worker.
+
 ## Data Sources
 
 All external API calls are to public, ToS-compliant endpoints (official Steam Web API, official

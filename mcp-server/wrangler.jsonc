@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "steamyard-mcp",
   "main": "src/index.ts",
-  "compatibility_date": "2026-06-11",
+  "compatibility_date": "2026-08-30",
   "compatibility_flags": ["nodejs_compat"],
 
   // Steam Web API key is a secret, never a var:

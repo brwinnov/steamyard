@@ -7,7 +7,7 @@ STEAMYARD is an MCP (Model Context Protocol) server + companion skill that lets 
 - What's new for this game since I last checked?
 - Is now a good time to buy, or will it be cheaper in 4-6 weeks?
 
-**Status: Phase 1 MVP scaffold.** Two tools, real Steam data, no reseller price comparison yet (that's Phase 2).
+**Status: Phase 1 MVP, deployed.** Two tools, real Steam data, no reseller price comparison yet (that's Phase 2). Live on Cloudflare Workers — URL kept private for now since the `/mcp` endpoint has no request authentication yet (see `SECURITY.md`).
 
 [Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md) · [Dependency & Reliability Audit](AUDIT.md) · [Security Policy](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [License](LICENSE)
 
