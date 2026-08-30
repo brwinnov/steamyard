@@ -7,16 +7,12 @@
 
   // Custom domain (ackros.gg is on this Cloudflare account) instead of the shared,
   // account-wide *.workers.dev subdomain.
-  "routes": [
-    { "pattern": "steamyard-mcp.ackros.gg", "custom_domain": true }
-  ],
+  "routes": [{ "pattern": "steamyard-mcp.ackros.gg", "custom_domain": true }],
 
   // Steam Web API key is a secret, never a var:
   //   npx wrangler secret put STEAM_API_KEY
   //
   // Caches owned-games lookups (~1h TTL) and game/DLC catalog lookups (~6h TTL) to stay
   // under Steam's tight, undocumented rate limits (see AUDIT.md §2).
-  "kv_namespaces": [
-    { "binding": "STEAMYARD_CACHE", "id": "ee5b33f3a885484ea87ae66075275b60" }
-  ]
+  "kv_namespaces": [{ "binding": "STEAMYARD_CACHE", "id": "ee5b33f3a885484ea87ae66075275b60" }],
 }

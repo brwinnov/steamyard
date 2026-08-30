@@ -10,9 +10,12 @@ export interface AppDetails {
   name: string;
   is_dlc: boolean;
   release_date: string | null;
-  price:
-    | { currency: string; initial_formatted: string; final_formatted: string; discount_percent: number }
-    | null; // null for free/unreleased/region-unavailable apps
+  price: {
+    currency: string;
+    initial_formatted: string;
+    final_formatted: string;
+    discount_percent: number;
+  } | null; // null for free/unreleased/region-unavailable apps
   dlc_app_ids: number[];
 }
 

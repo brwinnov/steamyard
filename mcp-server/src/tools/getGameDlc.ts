@@ -1,14 +1,25 @@
 import { z } from "zod";
 import { getAppDetails, getAppDetailsBatch, type AppDetails } from "../clients/steamDb.js";
-import { getOwnedGames, resolveSteamId, SteamProfilePrivateError, type OwnedGame } from "../clients/steamApi.js";
+import {
+  getOwnedGames,
+  resolveSteamId,
+  SteamProfilePrivateError,
+  type OwnedGame,
+} from "../clients/steamApi.js";
 import { getCached, setCached } from "../lib/cache.js";
 
 export const getGameDlcInputSchema = {
-  app_id: z.number().int().positive().describe("The base game's Steam app_id, e.g. 24010 for Train Simulator World."),
+  app_id: z
+    .number()
+    .int()
+    .positive()
+    .describe("The base game's Steam app_id, e.g. 24010 for Train Simulator World."),
   steam_id: z
     .string()
     .optional()
-    .describe("Optional 64-bit SteamID64 or vanity name. When provided, each DLC is flagged owned/unowned."),
+    .describe(
+      "Optional 64-bit SteamID64 or vanity name. When provided, each DLC is flagged owned/unowned."
+    ),
 };
 
 // Catalog data (name/release date/price) changes slowly; owned-games data is cached separately
@@ -21,13 +32,17 @@ interface DlcCatalog {
   dlcDetails: AppDetails[];
 }
 
-export async function getGameDlcHandler({
-  app_id,
-  steam_id,
-}: {
-  app_id: number;
-  steam_id?: string;
-}, apiKey: string, kv?: KVNamespace) {
+export async function getGameDlcHandler(
+  {
+    app_id,
+    steam_id,
+  }: {
+    app_id: number;
+    steam_id?: string;
+  },
+  apiKey: string,
+  kv?: KVNamespace
+) {
   const catalogCacheKey = `dlc-catalog:${app_id}`;
   let catalog = await getCached<DlcCatalog>(kv, catalogCacheKey);
 

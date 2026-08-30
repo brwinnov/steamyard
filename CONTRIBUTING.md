@@ -7,18 +7,22 @@ cd mcp-server
 npm install
 ```
 
-Create `mcp-server/.dev.vars` with your own Steam Web API key (see `README.md` §Setup) — never
-commit this file, it's already gitignored.
+Create `mcp-server/.dev.vars` with your own Steam Web API key and a generated auth token (see
+`README.md` §Setup) — never commit this file, it's already gitignored.
 
 ```bash
 npm run dev        # local Worker via wrangler
 npm run typecheck   # tsc --noEmit
+npm test            # vitest run — unit tests for tools/clients/cache/auth
+npm run lint        # eslint .
+npm run format      # prettier --write .
 ```
 
 Test tool calls with the MCP Inspector:
 ```bash
 npx @modelcontextprotocol/inspector@latest
 ```
+Paste your `MCP_AUTH_TOKEN` into the Inspector's **Bearer Token** field when connecting.
 
 ## Conventions
 
@@ -34,6 +38,10 @@ npx @modelcontextprotocol/inspector@latest
   empty/default result. See `AUDIT.md` §3 for why this matters here specifically.
 - Check `AUDIT.md` before adding a dependency — a convenience package is not worth an unaudited
   transitive tree (see `AUDIT.md` §1 for a concrete example of this going wrong).
+- **Tests use mocked network calls, not live Steam requests** — `vi.stubGlobal("fetch", ...)` /
+  `vi.mock` on the client modules, so the suite runs fast and doesn't depend on Steam's rate
+  limits or your API key. Add coverage this way for new tools/clients rather than skipping tests
+  because "it needs a real API call."
 
 ## Scope Discipline
 
@@ -45,4 +53,5 @@ PRs scoped to one phase or one fix at a time.
 
 - Keep them focused — one logical change per PR
 - Update `README.md`/`ROADMAP.md` if the change affects setup steps or the phase plan
-- No formal CI yet; run `npm run typecheck` locally before submitting
+- No formal CI yet; run `npm run typecheck`, `npm test`, and `npm run lint` locally before
+  submitting

@@ -78,8 +78,8 @@ Test with the MCP Inspector in another terminal:
 ```bash
 npx @modelcontextprotocol/inspector@latest
 ```
-Connect it to the local Worker URL printed by `wrangler dev` (path `/mcp`), configuring the
-Inspector's connection to send `Authorization: Bearer <your token>`.
+Connect it to the local Worker URL printed by `wrangler dev` (path `/mcp`), and paste your
+`MCP_AUTH_TOKEN` into the **Bearer Token** field in the Inspector's connection sidebar.
 
 Suggested pilot game: **Train Simulator World**, app_id `24010`.
 

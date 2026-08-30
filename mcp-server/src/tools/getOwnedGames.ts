@@ -1,11 +1,18 @@
 import { z } from "zod";
-import { getOwnedGames as fetchOwnedGames, resolveSteamId, SteamProfilePrivateError, type OwnedGame } from "../clients/steamApi.js";
+import {
+  getOwnedGames as fetchOwnedGames,
+  resolveSteamId,
+  SteamProfilePrivateError,
+  type OwnedGame,
+} from "../clients/steamApi.js";
 import { getCached, setCached } from "../lib/cache.js";
 
 export const getOwnedGamesInputSchema = {
   steam_id: z
     .string()
-    .describe("A 64-bit SteamID64, or a vanity profile name (the part after /id/ in a steamcommunity.com profile URL)."),
+    .describe(
+      "A 64-bit SteamID64, or a vanity profile name (the part after /id/ in a steamcommunity.com profile URL)."
+    ),
 };
 
 const OWNED_GAMES_CACHE_TTL_SECONDS = 60 * 60; // ~1h, per the original spec

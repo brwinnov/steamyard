@@ -22,6 +22,11 @@ All notable changes to this project are documented here. Format loosely follows
 
 ### Repo
 - Added `LICENSE` (MIT), `ROADMAP.md`, `AUDIT.md`, `SECURITY.md`, `CONTRIBUTING.md`
+- Added a Vitest test suite (32 tests across the cache helper, both Steam API clients, both tool
+  handlers, and the auth/routing layer in `index.ts`) — network calls are mocked, so the suite is
+  fast and doesn't depend on Steam's rate limits
+- Added ESLint (flat config, `typescript-eslint` recommended rules) and Prettier, matching what
+  `SteamYard.code-workspace` already recommended as VS Code extensions
 
 ## [0.1.0] — Phase 1 MVP
 

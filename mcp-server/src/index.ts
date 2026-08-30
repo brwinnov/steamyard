@@ -56,7 +56,7 @@ function createServer(env: Env): McpServer {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     if (!env.STEAM_API_KEY) {
       return new Response(
         "Missing STEAM_API_KEY secret. Run: npx wrangler secret put STEAM_API_KEY",
@@ -76,7 +76,9 @@ export default {
     // Stateless mode: a fresh server + transport per request. Fine for tool calls that don't
     // need multi-turn session state (ours don't) and keeps the Worker simple/scalable.
     const server = createServer(env);
-    const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    const transport = new WebStandardStreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    });
     await server.connect(transport);
     return transport.handleRequest(request);
   },
