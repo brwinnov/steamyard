@@ -9,10 +9,15 @@
   // account-wide *.workers.dev subdomain.
   "routes": [{ "pattern": "steamyard-mcp.ackros.gg", "custom_domain": true }],
 
-  // Steam Web API key is a secret, never a var:
+  // Secrets, never vars:
   //   npx wrangler secret put STEAM_API_KEY
+  //   npx wrangler secret put MCP_AUTH_TOKEN
+  //   npx wrangler secret put ITAD_API_KEY   (optional — compare-dlc-prices degrades gracefully
+  //                                            with a clear error if unset; price-history via
+  //                                            CheapShark needs no key at all)
   //
-  // Caches owned-games lookups (~1h TTL) and game/DLC catalog lookups (~6h TTL) to stay
-  // under Steam's tight, undocumented rate limits (see AUDIT.md §2).
+  // Caches owned-games/DLC-catalog lookups (Steam), plus ITAD id/price and CheapShark
+  // lookup/details/store-name lookups, all to stay under each API's rate limits
+  // (see AUDIT.md §2 and §4).
   "kv_namespaces": [{ "binding": "STEAMYARD_CACHE", "id": "ee5b33f3a885484ea87ae66075275b60" }],
 }

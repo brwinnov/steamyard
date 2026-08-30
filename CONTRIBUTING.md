@@ -7,8 +7,9 @@ cd mcp-server
 npm install
 ```
 
-Create `mcp-server/.dev.vars` with your own Steam Web API key and a generated auth token (see
-`README.md` §Setup) — never commit this file, it's already gitignored.
+Create `mcp-server/.dev.vars` with your own Steam Web API key, a generated auth token, and
+(optionally) an IsThereAnyDeal API key (see `README.md` §Setup) — never commit this file, it's
+already gitignored.
 
 ```bash
 npm run dev        # local Worker via wrangler
@@ -31,6 +32,10 @@ Paste your `MCP_AUTH_TOKEN` into the Inspector's **Bearer Token** field when con
 - **No scraping** — every data source must be a documented, public, ToS-compliant API. If a
   source (like SteamDB or AllKeyShop) doesn't have one, it's out of scope until it does — see
   `ROADMAP.md`'s Non-Goals.
+- **Verify a third-party API's real behavior before building on it, don't trust docs at face
+  value** — this project has twice found real API behavior diverging from what's documented
+  (Steam Store's undocumented rate limit, CheapShark's undocumented User-Agent requirement — see
+  `AUDIT.md` §2 and §4). Test against the live endpoint during development.
 - **Never hardcode secrets** — API keys go through Wrangler secrets (`.dev.vars` locally,
   `wrangler secret put` when deployed), never in source or `wrangler.jsonc`.
 - **Fail loud, not silent** — if an upstream API returns something ambiguous (like Steam's

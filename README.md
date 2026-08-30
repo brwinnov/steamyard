@@ -7,7 +7,7 @@ STEAMYARD is an MCP (Model Context Protocol) server + companion skill that lets 
 - What's new for this game since I last checked?
 - Is now a good time to buy, or will it be cheaper in 4-6 weeks?
 
-**Status: Phase 1 MVP, deployed.** Two tools, real Steam data, no reseller price comparison yet (that's Phase 2). Live on Cloudflare Workers behind a bearer-token auth check — URL kept out of public docs regardless, since it's a single shared secret rather than per-caller credentials (see `SECURITY.md`).
+**Status: Phase 2, deployed.** Four tools, real data from Steam, IsThereAnyDeal, and CheapShark. Live on Cloudflare Workers behind a bearer-token auth check — URL kept out of public docs regardless, since it's a single shared secret rather than per-caller credentials (see `SECURITY.md`).
 
 [Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md) · [Dependency & Reliability Audit](AUDIT.md) · [Security Policy](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [License](LICENSE)
 
@@ -19,8 +19,8 @@ STEAMYARD is an MCP (Model Context Protocol) server + companion skill that lets 
 steamyard/
 ├── mcp-server/              # Cloudflare Worker exposing the MCP tools
 │   └── src/
-│       ├── tools/           # get-owned-games, get-game-dlc
-│       ├── clients/         # Steam Web API + Steam Store API wrappers
+│       ├── tools/           # get-owned-games, get-game-dlc, compare-dlc-prices, price-history
+│       ├── clients/         # Steam Web/Store API, IsThereAnyDeal, CheapShark wrappers
 │       └── index.ts         # MCP server entry point
 ├── skills/
 │   └── steamyard-skill/     # Standalone reasoning skill (works with or without the MCP)
@@ -39,12 +39,24 @@ steamyard/
 - **Output:** all DLC for the game — name, release date, current price — cross-referenced against owned status when `steam_id` is supplied
 - Uses the official Steam Store API (`store.steampowered.com/api/appdetails`) — no SteamDB scraping
 
+### `compare-dlc-prices`
+- **Input:** `app_id` (required), `country` (optional two-letter code, default `US`)
+- **Output:** current price at every retailer IsThereAnyDeal tracks (Steam, Fanatical, GOG, GreenManGaming, Humble, Epic, and others), sorted cheapest-first, plus historical-low windows (all-time / 1yr / 3mo)
+- Requires an `ITAD_API_KEY` secret — returns a clear `itad_not_configured` error if unset rather than failing silently
+
+### `price-history`
+- **Input:** `app_id` (required)
+- **Output:** all-time-low price + date, current cheapest price, and a plain-language buy-now-vs-wait verdict based on how close the current price is to the all-time low
+- No API key needed, but requires a descriptive `User-Agent` header (CheapShark rejects requests without one — see `AUDIT.md` §4)
+
 ---
 
 ## Setup
 
-### 1. Get a Steam Web API key
-Generate one (free) at https://steamcommunity.com/dev/apikey — requires a Steam account with a domain name entered (any placeholder domain works for personal use).
+### 1. Get API keys
+- **Steam:** free at https://steamcommunity.com/dev/apikey — requires a Steam account with a domain name entered (any placeholder domain works for personal use).
+- **IsThereAnyDeal** (optional — only needed for `compare-dlc-prices`): free at https://isthereanydeal.com/apps/my/ → "Create app" → copy the plain **API key** field (not the OAuth Client ID/Secret pair — this project doesn't use OAuth, since it never acts on behalf of an ITAD user account).
+- **CheapShark:** no key needed for `price-history`.
 
 ### 2. Install dependencies
 ```bash
@@ -58,15 +70,17 @@ The `/mcp` endpoint requires a bearer token on every request — generate one:
 openssl rand -hex 32
 ```
 
-### 4. Set both secrets — never hardcode either
+### 4. Set secrets — never hardcode any of them
 ```bash
 npx wrangler secret put STEAM_API_KEY
 npx wrangler secret put MCP_AUTH_TOKEN
+npx wrangler secret put ITAD_API_KEY   # optional — skip if not using compare-dlc-prices
 ```
 For local dev, instead create `mcp-server/.dev.vars` (already gitignored):
 ```
 STEAM_API_KEY=your_key_here
 MCP_AUTH_TOKEN=your_generated_token_here
+ITAD_API_KEY=your_itad_key_here
 ```
 
 ### 5. Run locally
@@ -96,7 +110,6 @@ static header to an MCP server connection.
 ---
 
 ## Explicitly Out of Scope for This Phase
-- Reseller price comparison (IsThereAnyDeal / CheapShark) — Phase 2
 - Watchlist / price-drop alerts — Phase 3
 - Plugin wrapper for one-click install — Phase 4
 - Any scraping of SteamDB or AllKeyShop — public APIs only

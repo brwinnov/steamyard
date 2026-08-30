@@ -60,3 +60,20 @@ a typed `SteamProfilePrivateError`, which `getOwnedGamesHandler` catches and tur
 **Verified against real data:** tested against a profile with a public game list (933 games
 returned correctly) and one with hidden game details (correctly reported as
 `profile_private_or_empty`) — see commit history for the session this was validated in.
+
+## 4. CheapShark rejects requests without a descriptive User-Agent
+
+**Finding:** `www.cheapshark.com/api/1.0/*` (used by `price-history`) returned `{"error":
+"Missing or generic User-Agent header detected..."}` on every request during development, sent
+via `curl` with its default User-Agent. This isn't mentioned in the commonly-referenced API docs
+pages (which are JS-rendered and didn't yield useful content via automated fetch either — verified
+against the live API directly instead, since the docs page itself wasn't a reliable source here).
+
+**Fix:** `src/clients/cheapShark.ts` sends
+`User-Agent: steamyard-mcp/0.1 (+https://github.com/brwinnov/steamyard)` on every request. Covered
+by a test (`cheapShark.test.ts`) asserting the header is present, so a future refactor can't
+silently drop it and reintroduce the 403.
+
+**Takeaway:** don't trust a public API's documented request format at face value — verify against
+the live endpoint before building on it, the same way `get-game-dlc`'s real rate-limit behavior
+(§2) diverged from what was documented.

@@ -5,6 +5,25 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — Phase 2
+- `compare-dlc-prices` MCP tool — current price across every retailer IsThereAnyDeal tracks
+  (Steam, Fanatical, GOG, GreenManGaming, Humble, Epic, and more), sorted cheapest-first, plus
+  all-time/1yr/3mo historical-low windows. Requires `ITAD_API_KEY`; returns a clear
+  `itad_not_configured` error rather than failing silently if unset.
+- `price-history` MCP tool — all-time-low price + date via CheapShark, plus a plain-language
+  buy-now-vs-wait verdict comparing the current cheapest price against it. No API key required.
+- New clients: `src/clients/isThereAnyDeal.ts`, `src/clients/cheapShark.ts`
+- KV caching for both new tools, same approach as Phase 1 (ITAD id lookups ~7d, current prices
+  ~1h, CheapShark lookup/details ~1h, store names ~24h)
+- 21 new tests (53 total) covering both new clients and tool handlers
+
+### Fixed — Phase 2
+- Discovered CheapShark rejects requests without a descriptive `User-Agent` header (not mentioned
+  in commonly-referenced docs) — `cheapShark.ts` now always sends one, covered by a test that
+  would catch a regression. See `AUDIT.md` §4.
+
+## [0.2.0] — Deployed, secured, tested (Phase 1 polish)
+
 ### Added
 - KV-backed caching (`STEAMYARD_CACHE` namespace) for both tools: `get-owned-games` caches a
   resolved SteamID's owned-games list for ~1h; `get-game-dlc` caches the base game + DLC catalog

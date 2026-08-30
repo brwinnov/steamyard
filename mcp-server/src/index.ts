@@ -2,10 +2,13 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { getOwnedGamesInputSchema, getOwnedGamesHandler } from "./tools/getOwnedGames.js";
 import { getGameDlcInputSchema, getGameDlcHandler } from "./tools/getGameDlc.js";
+import { compareDlcPricesInputSchema, compareDlcPricesHandler } from "./tools/compareDlcPrices.js";
+import { priceHistoryInputSchema, priceHistoryHandler } from "./tools/priceHistory.js";
 
 export interface Env {
   STEAM_API_KEY: string;
   MCP_AUTH_TOKEN: string;
+  ITAD_API_KEY?: string;
   STEAMYARD_CACHE?: KVNamespace;
 }
 
@@ -50,6 +53,26 @@ function createServer(env: Env): McpServer {
       inputSchema: getGameDlcInputSchema,
     },
     (input) => getGameDlcHandler(input, env.STEAM_API_KEY, env.STEAMYARD_CACHE)
+  );
+
+  server.registerTool(
+    "compare-dlc-prices",
+    {
+      description:
+        "Compare a game or DLC's current price across retailers (Steam, Fanatical, GOG, GreenManGaming, Humble, and others tracked by IsThereAnyDeal), plus historical-low windows.",
+      inputSchema: compareDlcPricesInputSchema,
+    },
+    (input) => compareDlcPricesHandler(input, env.ITAD_API_KEY, env.STEAMYARD_CACHE)
+  );
+
+  server.registerTool(
+    "price-history",
+    {
+      description:
+        "Get a game's all-time-low price and a buy-now-vs-wait verdict based on how the current price compares to it.",
+      inputSchema: priceHistoryInputSchema,
+    },
+    (input) => priceHistoryHandler(input, env.STEAMYARD_CACHE)
   );
 
   return server;
