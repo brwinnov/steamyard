@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "steamyard-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-11",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Steam Web API key is a secret, never a var:
+  //   npx wrangler secret put STEAM_API_KEY
+  //
+  // Optional KV namespace for caching owned-games lookups (~1h TTL).
+  // Create it with `npx wrangler kv namespace create STEAMYARD_CACHE`
+  // and paste the returned id below to enable caching.
+  // "kv_namespaces": [
+  //   { "binding": "STEAMYARD_CACHE", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }
+  // ]
+}
