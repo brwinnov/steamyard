@@ -10,6 +10,15 @@ All notable changes to this project are documented here. Format loosely follows
   resolved SteamID's owned-games list for ~1h; `get-game-dlc` caches the base game + DLC catalog
   per `app_id` for ~6h and reuses the owned-games cache when checking ownership. Verified locally:
   a cache hit returned identical data ~4x faster than a cold call. See `AUDIT.md` §2.
+- Bearer-token auth on the `/mcp` endpoint (`MCP_AUTH_TOKEN`) — every request must carry
+  `Authorization: Bearer <token>` or gets a `401`, checked with a constant-time comparison.
+  Verified against both local dev and the live deployment (missing/wrong token → 401, correct
+  token → 200). A single shared secret, not per-caller credentials — see `SECURITY.md` for the
+  tradeoff and what it isn't sufficient for yet.
+
+### Deployed
+- Live on Cloudflare Workers at a custom domain (`ackros.gg`) rather than the shared, account-wide
+  `workers.dev` subdomain
 
 ### Repo
 - Added `LICENSE` (MIT), `ROADMAP.md`, `AUDIT.md`, `SECURITY.md`, `CONTRIBUTING.md`

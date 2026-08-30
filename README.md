@@ -7,7 +7,7 @@ STEAMYARD is an MCP (Model Context Protocol) server + companion skill that lets 
 - What's new for this game since I last checked?
 - Is now a good time to buy, or will it be cheaper in 4-6 weeks?
 
-**Status: Phase 1 MVP, deployed.** Two tools, real Steam data, no reseller price comparison yet (that's Phase 2). Live on Cloudflare Workers — URL kept private for now since the `/mcp` endpoint has no request authentication yet (see `SECURITY.md`).
+**Status: Phase 1 MVP, deployed.** Two tools, real Steam data, no reseller price comparison yet (that's Phase 2). Live on Cloudflare Workers behind a bearer-token auth check — URL kept out of public docs regardless, since it's a single shared secret rather than per-caller credentials (see `SECURITY.md`).
 
 [Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md) · [Dependency & Reliability Audit](AUDIT.md) · [Security Policy](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [License](LICENSE)
 
@@ -52,16 +52,24 @@ cd mcp-server
 npm install
 ```
 
-### 3. Set the API key as a Worker secret — never hardcode it
+### 3. Generate an auth token
+The `/mcp` endpoint requires a bearer token on every request — generate one:
+```bash
+openssl rand -hex 32
+```
+
+### 4. Set both secrets — never hardcode either
 ```bash
 npx wrangler secret put STEAM_API_KEY
+npx wrangler secret put MCP_AUTH_TOKEN
 ```
 For local dev, instead create `mcp-server/.dev.vars` (already gitignored):
 ```
 STEAM_API_KEY=your_key_here
+MCP_AUTH_TOKEN=your_generated_token_here
 ```
 
-### 4. Run locally
+### 5. Run locally
 ```bash
 npm run dev
 ```
@@ -70,14 +78,20 @@ Test with the MCP Inspector in another terminal:
 ```bash
 npx @modelcontextprotocol/inspector@latest
 ```
-Connect it to the local Worker URL printed by `wrangler dev` (path `/mcp`).
+Connect it to the local Worker URL printed by `wrangler dev` (path `/mcp`), configuring the
+Inspector's connection to send `Authorization: Bearer <your token>`.
 
 Suggested pilot game: **Train Simulator World**, app_id `24010`.
 
-### 5. Deploy
+### 6. Deploy
 ```bash
 npm run deploy
 ```
+
+### 7. Configure your MCP client
+Whatever calls this server (Claude Code, Claude.ai, another MCP client) needs to send the same
+bearer token as a custom header on every request — check your client's docs for how to attach a
+static header to an MCP server connection.
 
 ---
 

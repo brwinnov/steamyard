@@ -9,12 +9,14 @@ but real vulnerabilities will be prioritized over feature work.
 
 ## Secrets Handling
 
-- The Steam Web API key (`STEAM_API_KEY`) must never be committed to this repo.
+- The Steam Web API key (`STEAM_API_KEY`) and the MCP auth token (`MCP_AUTH_TOKEN`) must never
+  be committed to this repo.
   - Local development: `mcp-server/.dev.vars` (gitignored, never tracked)
-  - Deployed Worker: `npx wrangler secret put STEAM_API_KEY` (stored encrypted by Cloudflare, not in code or `wrangler.jsonc`)
-- If a key is ever accidentally committed, treat it as compromised: revoke/regenerate it at
-  https://steamcommunity.com/dev/apikey immediately, then scrub it from git history (contact the
-  maintainer — this needs a force-push and isn't done casually on a public repo).
+  - Deployed Worker: `npx wrangler secret put <NAME>` (stored encrypted by Cloudflare, not in code or `wrangler.jsonc`)
+- If either is ever accidentally committed, treat it as compromised: regenerate it (Steam key at
+  https://steamcommunity.com/dev/apikey; auth token via `openssl rand -hex 32`, then
+  `wrangler secret put MCP_AUTH_TOKEN` again) immediately, then scrub it from git history (contact
+  the maintainer — this needs a force-push and isn't done casually on a public repo).
 
 ## Dependency Hygiene
 
@@ -23,14 +25,18 @@ unnecessary crypto-wallet dependency chain pulled in transitively, since removed
 a new dependency to `mcp-server/package.json`, check its transitive tree
 (`npm ls <package>` after a trial install) for anything unexpected, and run `npm audit`.
 
-## Known Limitations
+## Authentication
 
-- **No request authentication on the deployed `/mcp` endpoint.** Anyone with the URL can call
-  both tools, and each call spends the deployed instance's `STEAM_API_KEY` quota — there's
-  currently no way to rate-limit or authenticate individual callers. The URL is intentionally
-  kept out of public docs for now as a mitigation. Before sharing the URL more broadly (or
-  building the Phase 4 plugin wrapper), add either a shared-secret header check or Cloudflare
-  Access in front of the Worker.
+The deployed `/mcp` endpoint requires a bearer token: every request must carry
+`Authorization: Bearer <MCP_AUTH_TOKEN>` or it's rejected with `401` before any tool code runs
+(see `src/index.ts`'s `isAuthorized`). The comparison is constant-time to avoid leaking how many
+leading characters of a guessed token matched.
+
+This is a single shared secret, not per-caller credentials — anyone holding the token can call
+either tool, and each call still spends the deployed instance's `STEAM_API_KEY` quota. That's an
+acceptable tradeoff for a personal/small-scale deployment, but isn't sufficient if this is ever
+opened up to multiple independent users (e.g. the Phase 4 plugin wrapper) — that would need
+per-caller tokens or a proper auth provider (e.g. Cloudflare Access) instead of one shared secret.
 
 ## Data Sources
 

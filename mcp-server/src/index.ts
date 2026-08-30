@@ -5,7 +5,29 @@ import { getGameDlcInputSchema, getGameDlcHandler } from "./tools/getGameDlc.js"
 
 export interface Env {
   STEAM_API_KEY: string;
+  MCP_AUTH_TOKEN: string;
   STEAMYARD_CACHE?: KVNamespace;
+}
+
+// Manual constant-time comparison (rather than node:crypto's timingSafeEqual, which would pull
+// in @types/node and conflict with @cloudflare/workers-types' own global declarations) so a
+// wrong-but-close guess doesn't leak timing info about how many leading characters matched.
+function timingSafeStringEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+function isAuthorized(request: Request, env: Env): boolean {
+  if (!env.MCP_AUTH_TOKEN) return false; // fail closed if the secret isn't configured
+
+  const header = request.headers.get("Authorization");
+  if (!header?.startsWith("Bearer ")) return false;
+
+  return timingSafeStringEqual(header.slice("Bearer ".length), env.MCP_AUTH_TOKEN);
 }
 
 function createServer(env: Env): McpServer {
@@ -45,6 +67,10 @@ export default {
     const url = new URL(request.url);
     if (url.pathname !== "/mcp") {
       return new Response("Not found. The MCP endpoint is /mcp.", { status: 404 });
+    }
+
+    if (!isAuthorized(request, env)) {
+      return new Response("Unauthorized. Pass Authorization: Bearer <token>.", { status: 401 });
     }
 
     // Stateless mode: a fresh server + transport per request. Fine for tool calls that don't
