@@ -9,6 +9,8 @@ STEAMYARD is an MCP (Model Context Protocol) server + companion skill that lets 
 
 **Status: Phase 1 MVP scaffold.** Two tools, real Steam data, no reseller price comparison yet (that's Phase 2).
 
+[Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md) · [Dependency & Reliability Audit](AUDIT.md) · [Security Policy](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [License](LICENSE)
+
 ---
 
 ## Repo Layout
