@@ -16,14 +16,23 @@ export interface AppDetails {
   dlc_app_ids: number[];
 }
 
-/** Fetches store metadata for a single app (game or DLC). Returns null if Steam has no listing for it. */
+/**
+ * Fetches store metadata for a single app (game or DLC). Returns null if Steam has no listing
+ * for it. Retries once on 429 — the Store API's rate limit is tight and easy to trip even for
+ * a handful of sequential calls (observed during testing), so a single request being throttled
+ * isn't worth failing the whole DLC lookup over.
+ */
 export async function getAppDetails(appId: number, region = "us"): Promise<AppDetails | null> {
   const url = new URL(STEAM_STORE_API_BASE);
   url.searchParams.set("appids", String(appId));
   url.searchParams.set("cc", region);
   url.searchParams.set("l", "english");
 
-  const res = await fetch(url);
+  let res = await fetch(url);
+  for (let attempt = 0; res.status === 429 && attempt < 3; attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, 3000 * (attempt + 1)));
+    res = await fetch(url);
+  }
   if (!res.ok) throw new Error(`Steam Store appdetails failed for ${appId}: ${res.status}`);
 
   const data = (await res.json()) as Record<
@@ -66,16 +75,17 @@ export async function getAppDetails(appId: number, region = "us"): Promise<AppDe
 }
 
 /**
- * Fetches details for a batch of app IDs sequentially with a small delay, to stay well under
- * the Store API's undocumented (but real) rate limit. Fine for a handful of DLC per game;
- * revisit with proper queuing/caching if a game has a very large DLC catalog.
+ * Fetches details for a batch of app IDs sequentially with a delay between each, to stay under
+ * the Store API's undocumented (but tight — observed 429s within a handful of rapid calls)
+ * rate limit. Fine for a handful of DLC per game; revisit with proper queuing/caching (see
+ * README's caching note) if a game has a very large DLC catalog.
  */
 export async function getAppDetailsBatch(appIds: number[], region = "us"): Promise<AppDetails[]> {
   const results: AppDetails[] = [];
   for (const appId of appIds) {
     const details = await getAppDetails(appId, region);
     if (details) results.push(details);
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
   return results;
 }
